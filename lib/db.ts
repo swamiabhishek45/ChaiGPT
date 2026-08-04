@@ -8,10 +8,13 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient() {
-    const url = process.env.DATABASE_URL;
+    let url = process.env.DATABASE_URL;
     if (!url) {
         throw new Error('DATABASE_URL is not set');
     }
+
+    // Replace deprecated sslmode aliases (require, prefer, verify-ca) with verify-full to suppress pg-connection-string warning
+    url = url.replace(/sslmode=(require|prefer|verify-ca)/, 'sslmode=verify-full');
 
     const pool = new Pool({
         connectionString: url,
